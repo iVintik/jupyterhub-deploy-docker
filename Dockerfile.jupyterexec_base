@@ -1,0 +1,8 @@
+FROM jupyter/tensorflow-notebook 
+
+# Install dockerspawner, oauth, postgres
+RUN /opt/conda/bin/pip install --no-cache-dir \
+	backtrader[plotting] \
+	trendln \
+	yfinance \
+	backtesting

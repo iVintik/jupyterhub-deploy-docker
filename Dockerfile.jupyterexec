@@ -1,0 +1,17 @@
+FROM jupyter/tensorflow-notebook 
+
+# Install dockerspawner, oauth, postgres
+RUN /opt/conda/bin/pip install --no-cache-dir \
+	backtrader[plotting] \
+	trendln \
+	yfinance \
+	bt 
+RUN /opt/conda/bin/pip install --upgrade \
+	jupyterlab-git
+#nbdime
+#RUN /opt/conda/bin/jupyter serverextension enable --py jupyterlab_git
+#RUN /opt/conda/bin/jupyter lab build
+#RUN /opt/conda/bin/jupyter labextension install @jupyterlab/git	
+RUN /opt/conda/bin/jupyter labextension install @jupyterlab/github
+RUN /opt/conda/bin/pip install --user tf-agents
+EXPOSE 6006:6006

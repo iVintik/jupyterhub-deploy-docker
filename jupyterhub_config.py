@@ -26,7 +26,7 @@ network_name = os.environ['DOCKER_NETWORK_NAME']
 c.DockerSpawner.use_internal_ip = True
 c.DockerSpawner.network_name = network_name
 # Pass the network name as argument to spawned containers
-c.DockerSpawner.extra_host_config = { 'network_mode': network_name }
+c.DockerSpawner.extra_host_config = { 'network_mode': network_name, 'port_bindings': {6006:6006} }
 # Explicitly set notebook directory because we'll be mounting a host volume to
 # it.  Most jupyter/docker-stacks *-notebook images run the Notebook server as
 # user `jovyan`, and set the notebook directory to `/home/jovyan/work`.
@@ -35,7 +35,7 @@ notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
 c.DockerSpawner.notebook_dir = notebook_dir
 # Mount the real user's Docker volume on the host to the notebook user's
 # notebook directory in the container
-c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
+c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir, '/home/ubuntu/notebooks': '/home/jovyan/shared'}
 # volume_driver is no longer a keyword argument to create_container()
 # c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
 # Remove containers once they are stopped
@@ -55,6 +55,8 @@ c.JupyterHub.ssl_cert = os.environ['SSL_CERT']
 # Authenticate users with GitHub OAuth
 c.JupyterHub.authenticator_class = 'oauthenticator.GitHubOAuthenticator'
 c.GitHubOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
+
+c.Spawner.default_url = '/lab'
 
 # Persist hub data on volume mounted inside container
 data_dir = os.environ.get('DATA_VOLUME_CONTAINER', '/data')
@@ -84,3 +86,6 @@ with open(os.path.join(pwd, 'userlist')) as f:
             whitelist.add(name)
             if len(parts) > 1 and parts[1] == 'admin':
                 admin.add(name)
+
+c.ServerProxy.servers = {   
+    'tensorboard': {     'command': ['tensorboard', '--logdir', 'tf_checkpoints', '--port', '{port}']   } }
